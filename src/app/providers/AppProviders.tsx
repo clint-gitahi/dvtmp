@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-
+import { persistor, store } from '@app/store';
 import { SplashScreen } from '@features/auth/screens/SplashScreen';
 
 type AppProvidersProps = {
@@ -13,11 +13,10 @@ type AppProvidersProps = {
 };
 
 export function AppProviders({ children }: AppProvidersProps) {
-  const store = {}
   return (
     <GestureHandlerRootView style={styles.root}>
       <Provider store={store}>
-        <PersistGate loading={<SplashScreen />}>
+        <PersistGate loading={<SplashScreen />} persistor={persistor}>
           <SafeAreaProvider>
             <StatusBar barStyle="dark-content" />
             <NavigationContainer>{children}</NavigationContainer>

@@ -4,7 +4,7 @@ import { Screen, EmptyState } from '@shared/components';
 export function CartScreen() {
   return (
     <Screen>
-      <EmptyState title="Cart" description="Your shopping cart lives here." />
+      <EmptyState title="Cart" description="Add Product for a great experience" />
     </Screen>
   );
 }

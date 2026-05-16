@@ -2,11 +2,19 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, Screen, Text } from '@shared/components';
 import { spacing } from '@shared/theme';
+import { useAppDispatch } from '@shared/hooks/redux';
+import { setSession } from '@features/auth/slice';
 
 export function LoginScreen() {
+  const dispatch = useAppDispatch();
 
   const handleLogin = () => {
-    console.log('HANDLE LOGIN')
+    dispatch(
+      setSession({
+        user: { id: 'gitahi-user', email: 'gitahi@gmail.com', name: 'Gitahi Clinton' },
+        token: 'placeholder-token',
+      }),
+    );
   };
 
   return (
