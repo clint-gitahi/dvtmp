@@ -12,6 +12,7 @@ import {
 } from 'redux-persist';
 import { authReducer } from '@features/auth/slice';
 import { filtersReducer } from '@features/products/filtersSlice';
+import { cartReducer } from '@features/cart/slice'
 import { reduxPersistMmkv } from '@shared/storage/mmkv';
 import { productsApi } from '@features/products/api/productsApi';
 
@@ -33,6 +34,14 @@ const rootReducer = combineReducers({
     },
     filtersReducer,
   ),
+  cart: persistReducer(
+    {
+      key: 'cart',
+      storage: reduxPersistMmkv,
+      whitelist: ['items']
+    },
+    cartReducer,
+  )
 });
 
 export const store = configureStore({

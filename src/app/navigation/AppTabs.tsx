@@ -7,10 +7,14 @@ import { CartScreen } from '@features/cart/screens/CartScreen';
 import { ProfileScreen } from '@features/profile/screens/ProfileScreen';
 import { palette, spacing } from '@shared/theme';
 import type { AppTabsParamList } from './types';
+import { useAppSelector } from '@/shared/hooks/redux';
+import { selectCartCount } from '@features/cart/selectors'
 
 const Tab = createBottomTabNavigator<AppTabsParamList>();
 
 export function AppTabs() {
+  const cartCount = useAppSelector(selectCartCount);
+  
   return (
     <Tab.Navigator
       screenOptions={{
@@ -34,7 +38,11 @@ export function AppTabs() {
       <Tab.Screen
         name="Cart"
         component={CartScreen}
-        options={{ tabBarLabel: 'Cart' }}
+        options={{ 
+          tabBarLabel: 'Cart',
+          tabBarBadge: cartCount > 0 ? cartCount : undefined,
+          tabBarBadgeStyle: styles.tabBadge,
+        }}
       />
       <Tab.Screen
         name="Profile"
@@ -63,4 +71,7 @@ const styles = StyleSheet.create({
   iconBubbleFocused: {
     backgroundColor: palette.primary,
   },
+  tabBadge: {
+    backgroundColor: palette.primary,
+  }
 });
