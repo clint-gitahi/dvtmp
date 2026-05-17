@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { ActivityIndicator, RefreshControl, StyleSheet, View } from 'react-native';
 import { FlashList, type ListRenderItem } from '@shopify/flash-list';
-import { EmptyState, ErrorState, Text } from '@shared/components';
+import { EmptyState, ErrorState, Text, Button } from '@shared/components';
 import { palette, spacing } from '@shared/theme';
 import { ProductCard } from './ProductCard';
 import { ProductCardSkeleton } from './ProductCardSkeleton';
@@ -21,6 +21,9 @@ type ProductFeedProps = {
   ListHeaderComponent?: React.ReactElement;
   emptyTitle?: string;
   emptyDescription?: string;
+  hasFirstPageError?: boolean;
+  isPaginationError?: boolean;
+  onRetryNextPage?: () => void;
 };
 
 const GAP = spacing.md;
@@ -40,6 +43,9 @@ export function ProductFeed({
   ListHeaderComponent,
   emptyTitle = 'No products',
   emptyDescription = 'Try again',
+  hasFirstPageError,
+  isPaginationError,
+  onRetryNextPage,
 }: ProductFeedProps) {
   const COLUMNS = 2;
   const renderItem = useCallback<ListRenderItem<Product>>(
@@ -71,7 +77,7 @@ export function ProductFeed({
     );
   }
 
-  if (error && products.length === 0) {
+  if (hasFirstPageError) {
     return (
       <ErrorState
         title="Error Loading Products"
@@ -95,8 +101,10 @@ export function ProductFeed({
       ListFooterComponent={
         <ListFooter
           isFetchingNextPage={isFetchingNextPage}
+          isPaginationError={!!isPaginationError}
           hasMore={hasMore}
           hasItems={products.length > 0}
+          onRetry={onRetryNextPage}
         />
       }
       onEndReached={onEndReached}
@@ -122,15 +130,21 @@ function SkeletonGrid({ header }: { header?: React.ReactElement }) {
   );
 }
 
+type ListFooterProps = {
+  isFetchingNextPage: boolean;
+  isPaginationError: boolean;
+  hasMore: boolean;
+  hasItems: boolean;
+  onRetry?: () => void;
+};
+
 function ListFooter({
   isFetchingNextPage,
   hasMore,
   hasItems,
-}: {
-  isFetchingNextPage: boolean;
-  hasMore: boolean;
-  hasItems: boolean;
-}) {
+  isPaginationError,
+  onRetry
+}: ListFooterProps) {
   if (isFetchingNextPage) {
     return (
       <View style={styles.footer}>
@@ -138,6 +152,20 @@ function ListFooter({
       </View>
     );
   }
+
+  if(isPaginationError) {
+    return (
+      <View style={styles.errorFooter}>
+        <Text variant="caption" color="inkMuted" align="center">
+          Could not load any more items.
+        </Text>
+        {onRetry ? (
+          <Button label="Try again" variant="secondary" size="sm" onPress={onRetry} />
+        ) : null}
+      </View>
+    )
+  }
+
   if (!hasMore && hasItems) {
     return (
       <View style={styles.footer}>
@@ -176,5 +204,10 @@ const styles = StyleSheet.create({
   },
   footerSpacer: { 
     height: spacing.lg 
+  },
+  errorFooter: { 
+    paddingVertical: spacing.lg, 
+    alignItems: 'center', 
+    gap: spacing.sm 
   },
 });

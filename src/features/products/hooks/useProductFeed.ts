@@ -58,8 +58,15 @@ export function useProductFeed({ scope, pageSize = DEFAULT_PAGE_SIZE, enabled = 
     }
   }, [page, refetch, enabled]);
 
+  const retryNextPage = useCallback(() => {
+    inFlightPageRef.current = null;
+    refetch();
+  }, [refetch]);
+
   const isInitialLoading = enabled && isLoading && products.length === 0;
   const isFetchingNextPage = enabled && isFetching && page > 0 && !isInitialLoading;
+  const hasFirstPageError = Boolean(error) && products.length === 0;
+  const isPaginationError = Boolean(error) && products.length > 0 && !isFetching;
 
   return {
     products,
@@ -71,6 +78,9 @@ export function useProductFeed({ scope, pageSize = DEFAULT_PAGE_SIZE, enabled = 
     isRefreshing,
     fetchNextPage,
     refresh,
+    hasFirstPageError,
+    isPaginationError,
+    retryNextPage,
   };
 }
 

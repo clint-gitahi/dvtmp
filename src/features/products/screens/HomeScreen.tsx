@@ -65,9 +65,11 @@ export function HomeScreen() {
         isFetchingNextPage={feed.isFetchingNextPage}
         isRefreshing={feed.isRefreshing}
         hasMore={feed.hasMore}
-        error={feed.error}
+        hasFirstPageError={feed.hasFirstPageError}
+        isPaginationError={feed.isPaginationError}
         onEndReached={feed.fetchNextPage}
         onRefresh={feed.refresh}
+        onRetryNextPage={feed.retryNextPage}
         onAddToCart={addToCart}
         onProductPress={handleProductPress}
         ListHeaderComponent={header}

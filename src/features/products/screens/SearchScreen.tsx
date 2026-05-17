@@ -62,7 +62,9 @@ export function SearchScreen() {
           isFetchingNextPage={feed.isFetchingNextPage}
           isRefreshing={feed.isRefreshing}
           hasMore={feed.hasMore}
-          error={feed.error}
+          hasFirstPageError={feed.hasFirstPageError}
+          isPaginationError={feed.isPaginationError}
+          onRetryNextPage={feed.retryNextPage}
           onEndReached={feed.fetchNextPage}
           onRefresh={feed.refresh}
           onAddToCart={addToCart}

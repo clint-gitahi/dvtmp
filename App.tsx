@@ -8,12 +8,15 @@
 import React from 'react';
 import { AppProviders } from '@app/providers/AppProviders';
 import { RootNavigator } from '@app/navigation/RootNavigator';
+import { OnlineGate } from '@app/providers/OnlineGate';
 
 
 function App() {
   return (
     <AppProviders>
-      <RootNavigator />
+      <OnlineGate>
+        <RootNavigator />
+      </OnlineGate>
     </AppProviders>
   );
 }
