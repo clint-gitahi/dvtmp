@@ -7,9 +7,10 @@ const DEFAULT_PAGE_SIZE = 20;
 type UseProductFeedOptions = {
   scope: FeedScope;
   pageSize?: number;
+  enabled?: boolean;
 };
 
-export function useProductFeed({ scope, pageSize = DEFAULT_PAGE_SIZE }: UseProductFeedOptions) {
+export function useProductFeed({ scope, pageSize = DEFAULT_PAGE_SIZE, enabled = true }: UseProductFeedOptions) {
   const [page, setPage] = useState(0);
 
   const scopeKey = useScopeKey(scope);
@@ -23,7 +24,7 @@ export function useProductFeed({ scope, pageSize = DEFAULT_PAGE_SIZE }: UseProdu
     isFetching,
     error,
     refetch,
-  } = useGetProductFeedQuery({ scope, page, pageSize });
+  } = useGetProductFeedQuery({ scope, page, pageSize }, { skip: !enabled });
 
   const products = data?.products ?? [];
   const total = data?.total ?? 0;
@@ -35,16 +36,16 @@ export function useProductFeed({ scope, pageSize = DEFAULT_PAGE_SIZE }: UseProdu
   }, [isFetching]);
 
   const fetchNextPage = useCallback(() => {
-    if (isFetching) return;
-    if (!hasMore) return;
+    if (!enabled || isFetching || !hasMore) return;
     const nextPage = page + 1;
     if (inFlightPageRef.current === nextPage) return;
     inFlightPageRef.current = nextPage;
     setPage(nextPage);
-  }, [hasMore, isFetching, page]);
+  }, [hasMore, isFetching, page, enabled]);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const refresh = useCallback(async () => {
+    if (!enabled) return;
     setIsRefreshing(true);
     try {
       if (page !== 0) {
@@ -55,10 +56,10 @@ export function useProductFeed({ scope, pageSize = DEFAULT_PAGE_SIZE }: UseProdu
     } finally {
       setIsRefreshing(false);
     }
-  }, [page, refetch]);
+  }, [page, refetch, enabled]);
 
-  const isInitialLoading = isLoading && products.length === 0;
-  const isFetchingNextPage = isFetching && page > 0 && !isInitialLoading;
+  const isInitialLoading = enabled && isLoading && products.length === 0;
+  const isFetchingNextPage = enabled && isFetching && page > 0 && !isInitialLoading;
 
   return {
     products,

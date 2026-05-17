@@ -11,6 +11,7 @@ import {
   persistStore,
 } from 'redux-persist';
 import { authReducer } from '@features/auth/slice';
+import { filtersReducer } from '@features/products/filtersSlice';
 import { reduxPersistMmkv } from '@shared/storage/mmkv';
 import { productsApi } from '@features/products/api/productsApi';
 
@@ -24,6 +25,14 @@ const rootReducer = combineReducers({
     authReducer,
   ),
   [productsApi.reducerPath]: productsApi.reducer,
+  filters: persistReducer(
+    {
+      key: 'filters',
+      storage: reduxPersistMmkv,
+      whitelist: ['category', 'sort'],
+    },
+    filtersReducer,
+  ),
 });
 
 export const store = configureStore({

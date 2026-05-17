@@ -1,55 +1,88 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useState  } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Screen, Text } from '@shared/components';
 import { spacing } from '@shared/theme';
-import { useAppSelector } from '@shared/hooks/redux';
+import { useAppDispatch, useAppSelector } from '@shared/hooks/redux';
 import { ProductFeed } from '@features/products/components/ProductFeed';
 import { useProductFeed } from '@features/products/hooks/useProductFeed';
+import { CategoryChips } from '@features/products/components/CategoryChips';
+import { FilterButton } from '@features/products/components/FilterButton';
+import { SortSheet } from '@features/products/components/SortSheet';
+import { setCategory, setSort } from '@features/products/filtersSlice';
+import type { FeedScope } from '@models/Product';
 
 export function HomeScreen() {
+  const dispatch = useAppDispatch();
   const user = useAppSelector(s => s.auth.user);
+  const category = useAppSelector(s => s.filters.category);
+  const sort = useAppSelector(s => s.filters.sort);
+  const [sortOpen, setSortOpen] = useState(false);
 
-  const {
-    products,
-    hasMore,
-    error,
-    isInitialLoading,
-    isFetchingNextPage,
-    isRefreshing,
-    fetchNextPage,
-    refresh,
-  } = useProductFeed({ scope: { type: 'all' } });
+  const scope: FeedScope = useMemo(() => 
+    category ? 
+      { type: 'category', category, sort: sort ?? undefined } : 
+      {type: 'all', sort: sort ?? undefined }, 
+    [category, sort])
 
-  const header = useMemo(
+  const feed = useProductFeed({ scope });
+
+  const handleSelectCategory = useCallback(
+    (slug: string | null) => dispatch(setCategory(slug)),
+    [dispatch],
+  );
+
+   const header = useMemo(
     () => (
-      <View style={styles.header}>
-        <Text variant="title">Hi {user?.name ?? 'Shopper'}</Text>
+      <View style={styles.headerWrap}>
+        <View style={styles.greetingRow}>
+          <View style={styles.greetingText}>
+            <Text variant="title">Hi, {user?.name ?? 'Shopper'}</Text>
+          </View>
+          <FilterButton active={sort !== null} onPress={() => setSortOpen(true)} />
+        </View>
+        <CategoryChips selected={category} onSelect={handleSelectCategory} />
       </View>
     ),
-    [user?.name],
+    [user?.name, sort, category, handleSelectCategory],
   );
 
   return (
     <Screen edges={['top']}>
       <ProductFeed
-        products={products}
-        isInitialLoading={isInitialLoading}
-        isFetchingNextPage={isFetchingNextPage}
-        isRefreshing={isRefreshing}
-        hasMore={hasMore}
-        error={error}
-        onEndReached={fetchNextPage}
-        onRefresh={refresh}
+        products={feed.products}
+        isInitialLoading={feed.isInitialLoading}
+        isFetchingNextPage={feed.isFetchingNextPage}
+        isRefreshing={feed.isRefreshing}
+        hasMore={feed.hasMore}
+        error={feed.error}
+        onEndReached={feed.fetchNextPage}
+        onRefresh={feed.refresh}
         ListHeaderComponent={header}
+      />
+       <SortSheet
+        visible={sortOpen}
+        selected={sort}
+        onSelect={value => dispatch(setSort(value))}
+        onClose={() => setSortOpen(false)}
       />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    paddingHorizontal: spacing.xs,
-    paddingBottom: spacing.md,
-    gap: spacing.xxs,
+  headerWrap: { 
+    gap: spacing.sm, 
+    paddingBottom: spacing.sm 
+  },
+  greetingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+  },
+  greetingText: { 
+    flex: 1, 
+    gap: spacing.xxs 
   },
 });

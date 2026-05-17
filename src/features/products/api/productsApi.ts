@@ -79,9 +79,15 @@ export const productsApi = createApi({
         scopeKey(currentArg!.scope) !== scopeKey(previousArg?.scope ?? currentArg!.scope),
       providesTags: (_result, _err, arg) => [{ type: 'Feed', id: scopeKey(arg.scope) }],
     }),
+
+    getCategories: build.query<ProductCategory[], void>({
+      query: () => ({ url: '/products/categories' }),
+      providesTags: [{ type: 'Category', id: 'LIST' }],
+    }),
   }),
 });
 
 export const {
   useGetProductFeedQuery,
+  useGetCategoriesQuery,
 } = productsApi;
