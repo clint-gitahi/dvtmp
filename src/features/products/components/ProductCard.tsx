@@ -2,7 +2,7 @@ import React, { memo, useCallback } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { Button, Text } from '@shared/components';
 import { palette, radii, shadows, spacing } from '@shared/theme';
-import type { Product } from '@types/Product';
+import type { Product } from '@models/Product';
 
 type ProductCardProps = {
   product: Product;

@@ -11,7 +11,7 @@ module.exports = {
           '@app': './src/app',
           '@features': './src/features',
           '@shared': './src/shared',
-          '@types': './src/types',
+          '@models': './src/models',
         },
         extensions: ['.ios.js', '.android.js', '.js', '.ts', '.tsx', '.json'],
       },

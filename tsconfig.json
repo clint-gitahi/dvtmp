@@ -8,7 +8,7 @@
       "@app/*": ["src/app/*"],
       "@features/*": ["src/features/*"],
       "@shared/*": ["src/shared/*"],
-      "@types/*": ["src/types/*"]
+      "@models/*": ["src/models/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGetProductFeedQuery } from '@features/products/api/productsApi';
-import type { FeedScope } from '@types/Product';
+import type { FeedScope } from '@models/Product';
 
 const DEFAULT_PAGE_SIZE = 20;
 

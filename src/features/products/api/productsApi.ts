@@ -7,7 +7,7 @@ import type {
   ProductCategory,
   ProductsPage,
   SortKey,
-} from '@types/Product'
+} from '@models/Product'
 
 const SORT_PARAMS: Record<SortKey, { sortBy: string; order: 'asc' | 'desc' }> = {
   priceAsc: { sortBy: 'price', order: 'asc' },

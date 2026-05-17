@@ -5,7 +5,7 @@ import { EmptyState, ErrorState, Text } from '@shared/components';
 import { palette, spacing } from '@shared/theme';
 import { ProductCard } from './ProductCard';
 import { ProductCardSkeleton } from './ProductCardSkeleton';
-import type { Product } from '@types/Product';
+import type { Product } from '@models/Product';
 
 type ProductFeedProps = {
   products: Product[];
