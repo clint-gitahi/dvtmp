@@ -4,3 +4,4 @@ export { ErrorState } from './Error';
 export { NetworkBanner } from './Network';
 export { Screen } from './Screen';
 export { Text } from './Text';
+export { Input } from './Input';
