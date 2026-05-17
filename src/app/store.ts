@@ -1,4 +1,5 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { setupListeners } from '@reduxjs/toolkit/query';
 import {
   FLUSH,
   PAUSE,
@@ -10,7 +11,9 @@ import {
   persistStore,
 } from 'redux-persist';
 import { authReducer } from '@features/auth/slice';
+import { filtersReducer } from '@features/products/filtersSlice';
 import { reduxPersistMmkv } from '@shared/storage/mmkv';
+import { productsApi } from '@features/products/api/productsApi';
 
 const rootReducer = combineReducers({
   auth: persistReducer(
@@ -21,6 +24,15 @@ const rootReducer = combineReducers({
     },
     authReducer,
   ),
+  [productsApi.reducerPath]: productsApi.reducer,
+  filters: persistReducer(
+    {
+      key: 'filters',
+      storage: reduxPersistMmkv,
+      whitelist: ['category', 'sort'],
+    },
+    filtersReducer,
+  ),
 });
 
 export const store = configureStore({
@@ -30,8 +42,10 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }),
+    }).concat(productsApi.middleware),
 });
+
+setupListeners(store.dispatch);
 
 export const persistor = persistStore(store);
 
