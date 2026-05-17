@@ -1,8 +1,16 @@
 import React, { memo, useCallback } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
-import { Button, Text } from '@shared/components';
+import { Button, Text, Badge } from '@shared/components';
 import { palette, radii, shadows, spacing } from '@shared/theme';
 import type { Product } from '@models/Product';
+import {
+  canAddToCart,
+  describeCartIneligibility,
+  getCartIneligibilityReason,
+  isLowStock,
+  isOutOfStock,
+  isPremium,
+} from '@features/products/businessRules';
 
 type ProductCardProps = {
   product: Product;
@@ -15,18 +23,31 @@ function ProductCardBase({ product, onPress, onAddToCart }: ProductCardProps) {
   const handleAdd = useCallback(() => onAddToCart?.(product), [onAddToCart, product]);
 
   const finalPrice = product.price * (1 - product.discountPercentage / 100);
+  const premium = isPremium(product);
+  const lowStock = isLowStock(product);
+  const outOfStock = isOutOfStock(product);
+  const eligible = canAddToCart(product);
+  const ineligibilityReason = eligible ? null : getCartIneligibilityReason(product);
 
   return (
-    <Pressable onPress={handlePress} style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}>
+    <Pressable 
+      onPress={handlePress} 
+      style={({ pressed }) => [
+        styles.card, 
+        premium && styles.cardPremium, 
+        pressed && styles.cardPressed
+      ]}
+    >
       <View style={styles.imageWrap}>
         <Image source={{ uri: product.thumbnail }} style={styles.image} resizeMode="cover" />
-        {product.discountPercentage >= 1 ? (
-          <View style={styles.discountBadge}>
-            <Text variant="micro" color="white">
-              -{Math.round(product.discountPercentage)}%
-            </Text>
-          </View>
-        ) : null}
+        <View style={styles.topLeftBadges}>
+          {product.discountPercentage >= 1 ? (
+            <Badge tone="danger" label={`-${Math.round(product.discountPercentage)}%`} />
+          ) : null}
+        </View>
+        <View style={styles.topRightBadges}>
+          {premium ? <Badge tone="premium" label="Premium Choice" /> : null}
+        </View>
       </View>
 
       <View style={styles.body}>
@@ -58,20 +79,49 @@ function ProductCardBase({ product, onPress, onAddToCart }: ProductCardProps) {
           ) : null}
         </View>
 
-        <Text variant="micro" color={product.stock > 0 ? 'success' : 'danger'}>
-          {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
-        </Text>
+        <StockLine outOfStock={outOfStock} lowStock={lowStock} stock={product.stock} />
 
         <Button
-          label="Add to cart"
+          label={ineligibilityReason ? describeCartIneligibility(ineligibilityReason) : 'Add to cart'}
           size="sm"
           onPress={handleAdd}
-          disabled={product.stock === 0}
+          disabled={!eligible}
           fullWidth
           style={styles.cta}
         />
       </View>
     </Pressable>
+  );
+}
+
+
+function StockLine({
+  outOfStock,
+  lowStock,
+  stock,
+}: {
+  outOfStock: boolean;
+  lowStock: boolean;
+  stock: number;
+}) {
+  if (outOfStock) {
+    return (
+      <Text variant="micro" color="danger">
+        Out of stock
+      </Text>
+    );
+  }
+  if (lowStock) {
+    return (
+      <Text variant="micro" color="warning">
+        Almost sold out, {stock} left
+      </Text>
+    );
+  }
+  return (
+    <Text variant="micro" color="success">
+      {stock} in stock
+    </Text>
   );
 }
 
@@ -94,14 +144,18 @@ const styles = StyleSheet.create({
     width: '100%', 
     height: '100%' 
   },
-  discountBadge: {
+  topLeftBadges: {
     position: 'absolute',
     top: spacing.sm,
     left: spacing.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xxs,
-    borderRadius: radii.pill,
-    backgroundColor: palette.danger,
+    flexDirection: 'row',
+    gap: spacing.xs,
+  },
+  topRightBadges: {
+    position: 'absolute',
+    top: spacing.sm,
+    right: spacing.sm,
+    alignItems: 'flex-end',
   },
   body: { 
     padding: spacing.md, 
@@ -143,6 +197,7 @@ export const ProductCard = memo(ProductCardBase, (prev, next) =>
   prev.product.id === next.product.id &&
   prev.product.stock === next.product.stock &&
   prev.product.price === next.product.price &&
+   prev.product.rating === next.product.rating &&
   prev.onPress === next.onPress &&
   prev.onAddToCart === next.onAddToCart,
 );
