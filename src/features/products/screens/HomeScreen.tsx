@@ -1,5 +1,7 @@
 import React, { useCallback, useMemo, useState  } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Screen, Text } from '@shared/components';
 import { spacing } from '@shared/theme';
 import { useAppDispatch, useAppSelector } from '@shared/hooks/redux';
@@ -10,7 +12,8 @@ import { FilterButton } from '@features/products/components/FilterButton';
 import { SortSheet } from '@features/products/components/SortSheet';
 import { setCategory, setSort } from '@features/products/filtersSlice';
 import { useAddToCart } from '@features/cart/hooks/useAddToCart';
-import type { FeedScope } from '@models/Product';
+import type { FeedScope, Product } from '@models/Product';
+import type { RootStackParamList } from '@app/navigation/types';
 
 export function HomeScreen() {
   const dispatch = useAppDispatch();
@@ -27,11 +30,17 @@ export function HomeScreen() {
 
   const feed = useProductFeed({ scope });
   const addToCart = useAddToCart();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const handleSelectCategory = useCallback(
     (slug: string | null) => dispatch(setCategory(slug)),
     [dispatch],
   );
+
+  const handleProductPress = useCallback((product: Product) => 
+    navigation.navigate('ProductDetails', { productId: product.id }),
+    [navigation],
+  )
 
    const header = useMemo(
     () => (
@@ -60,6 +69,7 @@ export function HomeScreen() {
         onEndReached={feed.fetchNextPage}
         onRefresh={feed.refresh}
         onAddToCart={addToCart}
+        onProductPress={handleProductPress}
         ListHeaderComponent={header}
       />
        <SortSheet

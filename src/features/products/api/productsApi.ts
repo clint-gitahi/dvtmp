@@ -84,10 +84,16 @@ export const productsApi = createApi({
       query: () => ({ url: '/products/categories' }),
       providesTags: [{ type: 'Category', id: 'LIST' }],
     }),
+
+    getProductById: build.query<Product, number>({
+      query: id => ({ url: `/products/${id}` }),
+      providesTags: (_result, _err, id) => [{ type: 'Product', id }],
+    }),
   }),
 });
 
 export const {
   useGetProductFeedQuery,
   useGetCategoriesQuery,
+  useGetProductByIdQuery,
 } = productsApi;

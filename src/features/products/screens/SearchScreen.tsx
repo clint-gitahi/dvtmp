@@ -1,5 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Screen, SearchBar, EmptyState } from '@shared/components';
 import { spacing } from '@shared/theme';
 import { useAppDispatch, useAppSelector } from '@shared/hooks/redux';
@@ -10,7 +12,8 @@ import { SortSheet } from '@features/products/components/SortSheet';
 import { useProductFeed } from '@features/products/hooks/useProductFeed';
 import { setSort } from '@features/products/filtersSlice';
 import { useAddToCart } from '@features/cart/hooks/useAddToCart';
-import type { FeedScope } from '@models/Product';
+import type { FeedScope, Product } from '@models/Product';
+import type { RootStackParamList } from '@app/navigation/types';
 
 const MIN_QUERY_LENGTH = 2;
 
@@ -21,6 +24,7 @@ export function SearchScreen() {
   const [sortOpen, setSortOpen] = useState(false);
   const debouncedQuery = useDebouncedValue(query.trim(), 400);
   const hasQuery = debouncedQuery.length >= MIN_QUERY_LENGTH;
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const scope: FeedScope = useMemo(
     () => ({ type: 'search', query: debouncedQuery, sort: sort ?? undefined }),
@@ -29,6 +33,11 @@ export function SearchScreen() {
 
   const feed = useProductFeed({ scope, enabled: hasQuery });
   const addToCart = useAddToCart();
+
+  const handleProductPress = useCallback(
+    (product: Product) => navigation.navigate('ProductDetails', { productId: product.id }),
+    [navigation],
+  );
 
   return (
     <Screen edges={['top']}>
@@ -57,6 +66,7 @@ export function SearchScreen() {
           onEndReached={feed.fetchNextPage}
           onRefresh={feed.refresh}
           onAddToCart={addToCart}
+          onProductPress={handleProductPress}
           emptyTitle="No matches"
           emptyDescription={`We couldn’t find anything for "${debouncedQuery}".`}
         />
