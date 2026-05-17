@@ -9,6 +9,7 @@ import { CategoryChips } from '@features/products/components/CategoryChips';
 import { FilterButton } from '@features/products/components/FilterButton';
 import { SortSheet } from '@features/products/components/SortSheet';
 import { setCategory, setSort } from '@features/products/filtersSlice';
+import { useAddToCart } from '@features/cart/hooks/useAddToCart';
 import type { FeedScope } from '@models/Product';
 
 export function HomeScreen() {
@@ -25,6 +26,7 @@ export function HomeScreen() {
     [category, sort])
 
   const feed = useProductFeed({ scope });
+  const addToCart = useAddToCart();
 
   const handleSelectCategory = useCallback(
     (slug: string | null) => dispatch(setCategory(slug)),
@@ -57,6 +59,7 @@ export function HomeScreen() {
         error={feed.error}
         onEndReached={feed.fetchNextPage}
         onRefresh={feed.refresh}
+        onAddToCart={addToCart}
         ListHeaderComponent={header}
       />
        <SortSheet

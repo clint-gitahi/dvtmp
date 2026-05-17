@@ -9,6 +9,7 @@ import { FilterButton } from '@features/products/components/FilterButton';
 import { SortSheet } from '@features/products/components/SortSheet';
 import { useProductFeed } from '@features/products/hooks/useProductFeed';
 import { setSort } from '@features/products/filtersSlice';
+import { useAddToCart } from '@features/cart/hooks/useAddToCart';
 import type { FeedScope } from '@models/Product';
 
 const MIN_QUERY_LENGTH = 2;
@@ -27,6 +28,7 @@ export function SearchScreen() {
   );
 
   const feed = useProductFeed({ scope, enabled: hasQuery });
+  const addToCart = useAddToCart();
 
   return (
     <Screen edges={['top']}>
@@ -54,6 +56,7 @@ export function SearchScreen() {
           error={feed.error}
           onEndReached={feed.fetchNextPage}
           onRefresh={feed.refresh}
+          onAddToCart={addToCart}
           emptyTitle="No matches"
           emptyDescription={`We couldn’t find anything for "${debouncedQuery}".`}
         />
