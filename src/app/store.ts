@@ -1,5 +1,6 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
+import NetInfo from '@react-native-community/netinfo';
 import {
   FLUSH,
   PAUSE,
@@ -54,7 +55,12 @@ export const store = configureStore({
     }).concat(productsApi.middleware),
 });
 
-setupListeners(store.dispatch);
+setupListeners(store.dispatch, (dispatch, { onOnline, onOffline}) => {
+  const unsubscribe = NetInfo.addEventListener(state => {
+    dispatch(state.isConnected ? onOnline() : onOffline());
+  });
+  return unsubscribe;
+});
 
 export const persistor = persistStore(store);
 
