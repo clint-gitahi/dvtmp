@@ -52,6 +52,7 @@ export const productsApi = createApi({
   reducerPath: 'productsApi',
   baseQuery,
   tagTypes: ['Product', 'Feed', 'Category'],
+  keepUnusedDataFor: 30 * 60,
   endpoints: build => ({
     getProductFeed: build.query<ProductsPage, FeedPageArg>({
       query: arg => {
